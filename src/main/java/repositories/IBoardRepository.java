@@ -5,9 +5,9 @@ import models.Board;
 import java.util.Optional;
 
 public interface IBoardRepository {
-    void Save(Board board);
+    void save(Board board);
 
-    Optional<Board> Find(int id);
+    Optional<Board> find(int id);
 
     static IBoardRepository build(RepositoryType type) {
         return new FileBoardRepository();

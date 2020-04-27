@@ -6,12 +6,12 @@ import java.util.Optional;
 
 public class FileCategoryRepository implements ICategoryRepository {
     @Override
-    public void Save(Category category) {
+    public void save(Category category) {
 
     }
 
     @Override
-    public Optional<Category> Find(int id) {
+    public Optional<Category> find(int id) {
         return Optional.empty();
     }
 }

@@ -5,9 +5,9 @@ import models.Contact;
 import java.util.Optional;
 
 public interface IContactRepository {
-    void Save(Contact contact);
+    void save(Contact contact);
 
-    Optional<Contact> Find(int id);
+    Optional<Contact> find(int id);
 
     static IContactRepository build(RepositoryType type) {
         return new FileContactRepository();

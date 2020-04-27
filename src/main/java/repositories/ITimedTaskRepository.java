@@ -5,9 +5,9 @@ import models.TimedTask;
 import java.util.Optional;
 
 public interface ITimedTaskRepository {
-    void Save(TimedTask task);
+    void save(TimedTask task);
 
-    Optional<TimedTask> Find(int id);
+    Optional<TimedTask> find(int id);
 
     static ITimedTaskRepository build(RepositoryType type) {
         return new FileTimedTaskRepository();

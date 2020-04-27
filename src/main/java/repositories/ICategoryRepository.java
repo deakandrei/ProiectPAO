@@ -5,9 +5,9 @@ import models.Category;
 import java.util.Optional;
 
 public interface ICategoryRepository {
-    void Save(Category category);
+    void save(Category category);
 
-    Optional<Category> Find(int id);
+    Optional<Category> find(int id);
 
     static ICategoryRepository build(RepositoryType type) {
         return new FileCategoryRepository();

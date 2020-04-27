@@ -6,12 +6,12 @@ import java.util.Optional;
 
 public class FileBoardRepository implements IBoardRepository {
     @Override
-    public void Save(Board board) {
+    public void save(Board board) {
 
     }
 
     @Override
-    public Optional<Board> Find(int id) {
+    public Optional<Board> find(int id) {
         return Optional.empty();
     }
 }

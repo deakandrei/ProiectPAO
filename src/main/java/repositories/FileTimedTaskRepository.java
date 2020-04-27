@@ -6,12 +6,12 @@ import java.util.Optional;
 
 public class FileTimedTaskRepository implements ITimedTaskRepository {
     @Override
-    public void Save(TimedTask task) {
+    public void save(TimedTask task) {
 
     }
 
     @Override
-    public Optional<TimedTask> Find(int id) {
+    public Optional<TimedTask> find(int id) {
         return Optional.empty();
     }
 }

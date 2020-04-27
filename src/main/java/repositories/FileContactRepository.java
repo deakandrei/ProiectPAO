@@ -6,12 +6,12 @@ import java.util.Optional;
 
 public class FileContactRepository implements IContactRepository {
     @Override
-    public void Save(Contact contact) {
+    public void save(Contact contact) {
 
     }
 
     @Override
-    public Optional<Contact> Find(int id) {
+    public Optional<Contact> find(int id) {
         return Optional.empty();
     }
 }

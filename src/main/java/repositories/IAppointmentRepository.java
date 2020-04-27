@@ -5,9 +5,9 @@ import models.Appointment;
 import java.util.Optional;
 
 public interface IAppointmentRepository {
-    void Save(Appointment appointment);
+    void save(Appointment appointment);
 
-    Optional<Appointment> Find(int id);
+    Optional<Appointment> find(int id);
 
     static IAppointmentRepository build(RepositoryType type) {
         return new FileAppointmentRepository();

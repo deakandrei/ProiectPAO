@@ -6,12 +6,12 @@ import java.util.Optional;
 
 public class FileTaskRepository implements ITaskRepository {
     @Override
-    public void Save(Task task) {
+    public void save(Task task) {
 
     }
 
     @Override
-    public Optional<Task> Find(int id) {
+    public Optional<Task> find(int id) {
         return Optional.empty();
     }
 }

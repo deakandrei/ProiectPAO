@@ -5,9 +5,9 @@ import models.Task;
 import java.util.Optional;
 
 public interface ITaskRepository {
-    void Save(Task task);
+    void save(Task task);
 
-    Optional<Task> Find(int id);
+    Optional<Task> find(int id);
 
     static ITaskRepository build(RepositoryType type) {
         return new FileTaskRepository();
