@@ -4,9 +4,10 @@ import java.util.Optional;
 
 /*
 * Functionality common to all objects stored in the database
+* and need a separate id field.
 * */
 public class ApplicationObject {
-    private Optional<Integer> id = Optional.empty();
+    protected Optional<Integer> id = Optional.empty();
 
     public Optional<Integer> getId() {
         return id;

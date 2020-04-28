@@ -1,5 +1,6 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /* A simple Kanban board to organize the tasks */
@@ -9,11 +10,11 @@ public class Board extends ApplicationObject {
     private List<Task> inProgress;
     private List<Task> done;
 
-    public Board(String title, List<Task> todo, List<Task> inProgress, List<Task> done) {
+    public Board(String title) {
         this.title = title;
-        this.todo = todo;
-        this.inProgress = inProgress;
-        this.done = done;
+        this.todo = new ArrayList<>();
+        this.inProgress =  new ArrayList<>();
+        this.done =  new ArrayList<>();
     }
 
     public String getTitle() {

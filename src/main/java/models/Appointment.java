@@ -1,20 +1,21 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class Appointment extends ApplicationObject {
-    private List<Contact> participants;
-    private Date date;
     private String title;
     private String description;
+    private Date date;
+    private List<Contact> participants;
 
 
-    public Appointment(List<Contact> participants, Date date, String title, String description) {
-        this.participants = participants;
-        this.date = date;
+    public Appointment(String title, String description, Date date) {
         this.title = title;
         this.description = description;
+        this.participants = new ArrayList<>();
+        this.date = date;
     }
 
     public List<Contact> getParticipants() {
