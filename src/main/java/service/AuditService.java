@@ -14,8 +14,8 @@ public class AuditService {
 
     private AuditService() {
         try {
-            file = new BufferedWriter(new FileWriter("adit.csv", true));
-            file.write("Action, Timestamp, Status");
+            file = new BufferedWriter(new FileWriter("audit.csv", true));
+            file.write("Action, Timestamp, Status\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
