@@ -1,17 +1,19 @@
 package repositories;
 
 import Utils.CSVFindIdCriteria;
-import managers.CSVFilesLocationManager;
+import managers.CSVFileLocation;
 import managers.CSVFileManager;
 import managers.csvlayout.TaskLayout;
 import models.Task;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class FileTaskRepository implements ITaskRepository {
     private CSVFileManager file = CSVFileManager.getInstance(
-            CSVFilesLocationManager.TASKS.getPath()
+            CSVFileLocation.TASKS.getPath()
     );
 
     @Override
@@ -44,4 +46,36 @@ public class FileTaskRepository implements ITaskRepository {
         }
         return Optional.empty();
     }
+
+    @Override
+    public List<Task> readAll() {
+        return file.findAllMatches(x->true).stream()
+                .map(TaskLayout::deserialize)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateBoardId(Task task, Integer boardId) {
+        Optional<Integer> taskId = task.getId();
+        if(taskId.isEmpty()) {
+            int unusedId = CSVFileManager.findUnusedId(file, TaskLayout.ID.ordinal());
+            task.setId(Optional.of(unusedId));
+        }
+        List<String> line = new ArrayList<>(TaskLayout.serialize(task));
+        line.add(boardId.toString());
+        if(taskId.isEmpty()) {
+            file.addLine(line);
+        } else {
+            Optional<Integer> index = file.findFirstMatch(
+                    new CSVFindIdCriteria(TaskLayout.ID.ordinal(), taskId.get())
+            );
+            if(index.isEmpty()) {
+                System.out.println("Error updating task with id " +
+                        taskId.get().toString());
+            } else {
+                file.replaceLine(index.get(), line);
+            }
+        }
+    }
+
 }

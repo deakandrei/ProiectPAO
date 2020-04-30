@@ -18,6 +18,7 @@ public enum TimedTaskLayout {
         Integer id = task.getId().get();
         return List.of(id.toString(), task.getTitle(),
                 task.getDescription(), task.getCategory(),
+                task.getStatus().toString(),
                 DateFormatManager.format(task.getDueDate()));
     }
 

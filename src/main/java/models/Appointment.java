@@ -1,28 +1,26 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class Appointment extends ApplicationObject {
     private String title;
     private String description;
     private Date date;
-    private List<Contact> participants;
+    private Set<Contact> participants;
 
 
     public Appointment(String title, String description, Date date) {
         this.title = title;
         this.description = description;
-        this.participants = new ArrayList<>();
+        this.participants = new HashSet<>();
         this.date = date;
     }
 
-    public List<Contact> getParticipants() {
+    public Set<Contact> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(List<Contact> participants) {
+    public void setParticipants(Set<Contact> participants) {
         this.participants = participants;
     }
 
@@ -48,5 +46,34 @@ public class Appointment extends ApplicationObject {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public int hashCode() {
+        if(id.isEmpty())
+            return title.hashCode();
+        return id.get();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Appointment) {
+            Appointment other = (Appointment) obj;
+            if(this.id.isEmpty() || other.id.isEmpty()) {
+                return false;
+            }
+            return this.id.get().equals(other.id.get());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "Appointment{" +
+                "title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", date=" + date +
+                ", participants=" + participants +
+                '}';
     }
 }

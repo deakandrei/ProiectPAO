@@ -1,23 +1,27 @@
 package repositories;
 
-import managers.CSVFilesLocationManager;
+import managers.CSVFileLocation;
 import managers.CSVFileManager;
 import managers.csvlayout.CategoryLayout;
 import models.Category;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class FileCategoryRepository implements ICategoryRepository {
     private CSVFileManager file = CSVFileManager.getInstance(
-            CSVFilesLocationManager.CATEGORIES.getPath()
+            CSVFileLocation.CATEGORIES.getPath()
     );
 
     @Override
     public void save(Category category) {
-        Optional<Integer> index = file.findFirstMatch(x -> x.equals(category.getName()));
-        if(!index.isPresent()) {
+        Optional<Integer> index = file.findFirstMatch(
+                x -> x.get(CategoryLayout.NAME.ordinal()).equals(category.getName()));
+        if(index.isEmpty()) {
             file.addLine(CategoryLayout.serialize(category));
+        } else {
+            file.replaceLine(index.get(), CategoryLayout.serialize(category));
         }
     }
 
@@ -30,5 +34,12 @@ public class FileCategoryRepository implements ICategoryRepository {
             return Optional.of(CategoryLayout.deserialize(line));
         }
         return Optional.empty();
+    }
+
+    @Override
+    public List<Category> readAll() {
+        return file.findAllMatches(x -> true).stream()
+                .map(CategoryLayout::deserialize)
+                .collect(Collectors.toList());
     }
 }

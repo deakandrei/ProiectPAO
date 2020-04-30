@@ -2,7 +2,7 @@ package managers;
 
 import java.nio.file.Path;
 
-public enum CSVFilesLocationManager {
+public enum CSVFileLocation {
     APPOINTMENTS("appointments.csv"),
     BOARDS("boards.csv"),
     CATEGORIES("categories.csv"),
@@ -13,7 +13,7 @@ public enum CSVFilesLocationManager {
     private String directory = "csvdata";
     private String file;
 
-    CSVFilesLocationManager(String basename) {
+    CSVFileLocation(String basename) {
         this.file = basename;
     }
 

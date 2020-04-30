@@ -2,26 +2,26 @@ package repositories;
 
 import Utils.CSVFindIdCriteria;
 import managers.CSVFileManager;
-import managers.CSVFilesLocationManager;
+import managers.CSVFileLocation;
 import managers.csvlayout.BoardLayout;
 import managers.csvlayout.TaskLayout;
 import managers.csvlayout.TimedTaskLayout;
 import models.Board;
 import models.Task;
+import models.TimedTask;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FileBoardRepository implements IBoardRepository {
-    private CSVFileManager boardFile = CSVFileManager.getInstance(
-            CSVFilesLocationManager.BOARDS.getPath()
+    private final CSVFileManager boardFile = CSVFileManager.getInstance(
+            CSVFileLocation.BOARDS.getPath()
     );
-    private CSVFileManager taskFile = CSVFileManager.getInstance(
-            CSVFilesLocationManager.TASKS.getPath()
+    private final CSVFileManager taskFile = CSVFileManager.getInstance(
+            CSVFileLocation.TASKS.getPath()
     );
-    private CSVFileManager timedTaskFile = CSVFileManager.getInstance(
-            CSVFilesLocationManager.TIMED_TASKS.getPath()
+    private final CSVFileManager timedTaskFile = CSVFileManager.getInstance(
+            CSVFileLocation.TIMED_TASKS.getPath()
     );
 
     @Override
@@ -56,7 +56,7 @@ public class FileBoardRepository implements IBoardRepository {
                         line -> taskLineFilter(line, TaskLayout.BOARD_ID.ordinal(),
                                                 String.valueOf(id)))
                     .stream()
-                    .map(t -> TaskLayout.deserialize(t))
+                    .map(TaskLayout::deserialize)
                     .collect(Collectors.toList());
             tasksInfo.addAll(
                     timedTaskFile.findAllMatches(
@@ -64,7 +64,7 @@ public class FileBoardRepository implements IBoardRepository {
                                     TimedTaskLayout.BOARD_ID.ordinal(),
                                     String.valueOf(id)))
                             .stream()
-                            .map(t -> TimedTaskLayout.deserialize(t))
+                            .map(TimedTaskLayout::deserialize)
                             .collect(Collectors.toList())
                     );
             /* Now sort the taks according to their status */
@@ -84,6 +84,59 @@ public class FileBoardRepository implements IBoardRepository {
             return Optional.of(B);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public List<Board> readAll() {
+        Map<String, Board> boards = boardFile.findAllMatches(x->true).stream()
+                .map(BoardLayout::deserialize)
+                .collect(Collectors.toMap(
+                        B -> B.getId().get().toString(),
+                        B -> B
+                ));
+
+        taskFile.findAllMatches(
+                line -> fieldIsOneOf(line, TaskLayout.BOARD_ID.ordinal(), boards.keySet()))
+                .forEach(line -> {
+            Task task = TaskLayout.deserialize(line);
+            String boardId = line.get(TaskLayout.BOARD_ID.ordinal());
+            Board B = boards.get(boardId);
+            switch (task.getStatus()) {
+                case TODO:
+                    B.addTodo(task);
+                    break;
+                case IN_PROGRESS:
+                    B.addInProgress(task);
+                    break;
+                case DONE:
+                    B.addDone(task);
+                    break;
+            }
+        });
+
+        timedTaskFile.findAllMatches(
+                line -> fieldIsOneOf(line, TimedTaskLayout.BOARD_ID.ordinal(), boards.keySet()))
+                .forEach(line -> {
+                    TimedTask task = TimedTaskLayout.deserialize(line);
+                    String boardId = line.get(TaskLayout.BOARD_ID.ordinal());
+                    Board B = boards.get(boardId);
+                    switch (task.getStatus()) {
+                        case TODO:
+                            B.addTodo(task);
+                            break;
+                        case IN_PROGRESS:
+                            B.addInProgress(task);
+                            break;
+                        case DONE:
+                            B.addDone(task);
+                            break;
+                    }
+                });
+        return new ArrayList<>(boards.values());
+    }
+
+    private boolean fieldIsOneOf(List<String> line, int column, Set<String> values) {
+        return line.size() > column && values.contains(line.get(column));
     }
 
     /* Return true if the line has at least columnNr+1 elements and

@@ -19,7 +19,7 @@ public enum BoardLayout {
 
     public static Board deserialize(List<String> line) {
         Board board = new Board(line.get(TITLE.ordinal()));
-        board.setId(Optional.of(Integer.getInteger(line.get(ID.ordinal()))));
+        board.setId(Optional.of(Integer.parseInt(line.get(ID.ordinal()))));
         return board;
     }
 }

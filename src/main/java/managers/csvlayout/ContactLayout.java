@@ -15,8 +15,8 @@ public enum ContactLayout {
 
     public static Contact deserialize(List<String> line) {
         Contact contact = new Contact(line.get(NAME.ordinal()));
-        Integer id = Integer.getInteger(line.get(ID.ordinal()));
-        contact.setId(Optional.ofNullable(id));
+        Integer id = Integer.parseInt(line.get(ID.ordinal()));
+        contact.setId(Optional.of(id));
         return contact;
     }
 }

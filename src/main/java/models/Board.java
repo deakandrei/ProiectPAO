@@ -60,4 +60,14 @@ public class Board extends ApplicationObject {
     public void addDone(Task task) {
         this.done.add(task);
     }
+
+    @Override
+    public String toString() {
+        return "Board{" +
+                "title='" + title + '\'' +
+                ", todo=" + todo +
+                ", inProgress=" + inProgress +
+                ", done=" + done +
+                '}';
+    }
 }

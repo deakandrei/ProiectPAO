@@ -25,7 +25,7 @@ public enum AppointmentLayout {
                 line.get(DESCRIPTION.ordinal()),
                 DateFormatManager.parse(line.get(DATE.ordinal()))
         );
-        Integer id = Integer.getInteger(line.get(ID.ordinal()));
+        Integer id = Integer.parseInt(line.get(ID.ordinal()));
         appointment.setId(Optional.of(id));
         return appointment;
     }

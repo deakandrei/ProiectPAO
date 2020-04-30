@@ -6,7 +6,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 
@@ -64,7 +63,11 @@ public final class CSVFileManager {
     public void updateFirstColumns(int index, List<String> line) {
         List<String> oldLine = this.getLine(index);
         if(line.size() < oldLine.size()) {
-            line.addAll(oldLine.subList(line.size(), oldLine.size()));
+            List<String> prepareLine = new ArrayList<>(line);
+            prepareLine.addAll(oldLine.subList(
+                    line.size(), oldLine.size()));
+            data.set(index, prepareLine);
+            return;
         }
         data.set(index, line);
     }
@@ -119,9 +122,12 @@ public final class CSVFileManager {
     /* Returns a value larger than all other values in the file */
     public static int findUnusedId(CSVFileManager file, int column) {
         int freeIndex;
-        Optional<Integer> lineIndex = file.max(new CSVColumnComparator(column));
+        Optional<Integer> lineIndex = file.max(new CSVColumnComparator(column)
+                                                .reversed());
         if(lineIndex.isPresent()) {
-            freeIndex = Integer.getInteger(file.getLine(lineIndex.get()).get(column));
+            List<String> line = file.getLine(lineIndex.get());
+            String value = line.get(column);
+            freeIndex = Integer.parseInt(value);
             freeIndex++;
         } else {
             freeIndex = 1;

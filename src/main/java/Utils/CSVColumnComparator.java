@@ -11,8 +11,8 @@ public class CSVColumnComparator implements Comparator<List<String>> {
 
     @Override
     public int compare(List<String> l1, List<String> l2) {
-        Integer ia = Integer.getInteger(l1.get(column));
-        Integer ib = Integer.getInteger(l2.get(column));
+        Integer ia = Integer.parseInt(l1.get(column));
+        Integer ib = Integer.parseInt(l2.get(column));
         return ia.compareTo(ib);
     }
 }

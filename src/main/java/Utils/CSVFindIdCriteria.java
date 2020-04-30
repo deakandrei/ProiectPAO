@@ -13,6 +13,7 @@ public class CSVFindIdCriteria implements Function<List<String>, Boolean> {
     }
     @Override
     public Boolean apply(List<String> line) {
-        return Integer.getInteger(line.get(columnNr)).equals(id);
+        // parseInt seems to return an int
+        return Integer.parseInt(line.get(columnNr)) == (id);
     }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public enum  TaskLayout {
-   ID, TITLE, DESCRIPTION, CATEGORY, STATUS,
+   ID, TITLE, DESCRIPTION, STATUS, CATEGORY,
     /* The following columns are not stored in the task object
      * but are used to make connections with other objects */
     BOARD_ID; // id of the board; this is an optional field.
@@ -26,7 +26,7 @@ public enum  TaskLayout {
                 line.get(CATEGORY.ordinal())
         );
         T.setStatus(Task.Status.valueOf(line.get(STATUS.ordinal())));
-        T.setId(Optional.of(Integer.getInteger(line.get(ID.ordinal()))));
+        T.setId(Optional.of(Integer.parseInt(line.get(ID.ordinal()))));
         return T;
     }
 }
