@@ -1,24 +1,26 @@
 package managers;
 
-import javax.swing.text.html.Option;
+import Utils.CSVColumnComparator;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 
 public final class CSVFileManager {
     /* The file this instance manages */
-    private String filename;
+    private Path filename;
     /* in-memory file contents */
     private ArrayList<List<String>> data;
 
-    private CSVFileManager(String file) {
+    private CSVFileManager(Path file) {
         this.filename = file;
         this.data = new ArrayList<>();
         try {
-            ArrayList<String> lines = new ArrayList<>(Files.readAllLines(Paths.get(this.filename)));
+            ArrayList<String> lines = new ArrayList<>(Files.readAllLines(this.filename));
             for(String line : lines) {
                 List<String> elements = Arrays.asList(line.split(","));
                 data.add(elements);
@@ -29,9 +31,9 @@ public final class CSVFileManager {
         }
     }
 
-    public static CSVFileManager getInstance(String filename) {
+    public static CSVFileManager getInstance(Path filename) {
         CSVFileManager instance = SingletonHolder.openFiles.get(filename);
-        if(instance != null) {
+        if(null != instance) {
             return instance;
         }
         instance = new CSVFileManager(filename);
@@ -43,7 +45,7 @@ public final class CSVFileManager {
         /* Only allow new instances for files that were not opened before.
          * If the constructor is called with the same file argument twice,
          * the second time it just returns the previous instance */
-        private static final Map<String, CSVFileManager> openFiles = new HashMap<>();
+        private static final Map<Path, CSVFileManager> openFiles = new HashMap<>();
     }
 
     public List<String> getLine(int index) {
@@ -59,7 +61,7 @@ public final class CSVFileManager {
     * This is so that code in the repositories can worry about
     * the columns that make up the object, and safely ignore the
     * trailing columns without losing the information there. */
-    public void replaceLine(int index, List<String> line) {
+    public void updateFirstColumns(int index, List<String> line) {
         List<String> oldLine = this.getLine(index);
         if(line.size() < oldLine.size()) {
             line.addAll(oldLine.subList(line.size(), oldLine.size()));
@@ -67,11 +69,15 @@ public final class CSVFileManager {
         data.set(index, line);
     }
 
+    public void replaceLine(int index, List<String> line) {
+        data.set(index, line);
+    }
+
     public void deleteLine(int index) {
         data.remove(index);
     }
 
-    public String getFilename() { return this.filename; }
+    public String getFilename() { return this.filename.toString(); }
 
     public Optional<Integer> findFirstMatch(Function<List<String>, Boolean> criteria) {
         for(int i = 0; i < data.size(); i++) {
@@ -94,7 +100,7 @@ public final class CSVFileManager {
 
     public void save() {
         try(
-            BufferedWriter file = Files.newBufferedWriter(Paths.get(this.filename));
+            BufferedWriter file = Files.newBufferedWriter(this.filename);
         ) {
             for(List<String> line : data) {
                 file.write(line.get(0));
@@ -105,9 +111,22 @@ public final class CSVFileManager {
                 file.write('\n');
             }
         } catch (IOException e) {
-            System.out.println("Could not save the changes to the file " + this.filename);
+            System.out.println("Could not save the changes to the file " + this.filename.toString());
             e.printStackTrace();
         }
+    }
+
+    /* Returns a value larger than all other values in the file */
+    public static int findUnusedId(CSVFileManager file, int column) {
+        int freeIndex;
+        Optional<Integer> lineIndex = file.max(new CSVColumnComparator(column));
+        if(lineIndex.isPresent()) {
+            freeIndex = Integer.getInteger(file.getLine(lineIndex.get()).get(column));
+            freeIndex++;
+        } else {
+            freeIndex = 1;
+        }
+        return freeIndex;
     }
 
     public Optional<Integer> max(Comparator<List<String>> comp) {

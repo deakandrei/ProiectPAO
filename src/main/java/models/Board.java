@@ -48,4 +48,16 @@ public class Board extends ApplicationObject {
     public void setDone(List<Task> done) {
         this.done = done;
     }
+
+    public void addTodo(Task task) {
+        this.todo.add(task);
+    }
+
+    public void addInProgress(Task task) {
+        this.inProgress.add(task);
+    }
+
+    public void addDone(Task task) {
+        this.done.add(task);
+    }
 }

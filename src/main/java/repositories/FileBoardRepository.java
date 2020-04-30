@@ -1,54 +1,95 @@
 package repositories;
 
-import Utils.CSV;
 import Utils.CSVFindIdCriteria;
 import managers.CSVFileManager;
+import managers.CSVFilesLocationManager;
+import managers.csvlayout.BoardLayout;
+import managers.csvlayout.TaskLayout;
+import managers.csvlayout.TimedTaskLayout;
 import models.Board;
+import models.Task;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class FileBoardRepository implements IBoardRepository {
-    private CSVFileManager file = CSVFileManager.getInstance("csvdata/boards.csv");
+    private CSVFileManager boardFile = CSVFileManager.getInstance(
+            CSVFilesLocationManager.BOARDS.getPath()
+    );
+    private CSVFileManager taskFile = CSVFileManager.getInstance(
+            CSVFilesLocationManager.TASKS.getPath()
+    );
+    private CSVFileManager timedTaskFile = CSVFileManager.getInstance(
+            CSVFilesLocationManager.TIMED_TASKS.getPath()
+    );
 
     @Override
     public void save(Board board) {
         Optional<Integer> id = board.getId();
         if(id.isEmpty()) {
-            int freeId = CSV.findUnusedId(file, FieldColumn.ID.ordinal());
+            int freeId = CSVFileManager.findUnusedId(boardFile, BoardLayout.ID.ordinal());
             board.setId(Optional.of(freeId));
-            file.addLine(serialize(board));
+            boardFile.addLine(BoardLayout.serialize(board));
         } else {
-            Optional<Integer> index = file.findFirstMatch(
-                    new CSVFindIdCriteria(FieldColumn.ID.ordinal(),id.get()));
+            Optional<Integer> index = boardFile.findFirstMatch(
+                    new CSVFindIdCriteria(BoardLayout.ID.ordinal(),id.get()));
             if(index.isPresent()) {
-                file.replaceLine(index.get(), serialize(board));
+                boardFile.updateFirstColumns(index.get(), BoardLayout.serialize(board));
             } else {
                 System.out.println("ID " + id.get() + " was not found in "
-                                    + file.getFilename());
+                                    + boardFile.getFilename());
             }
         }
     }
 
     @Override
     public Optional<Board> find(int id) {
-        Optional<Integer> index = file.findFirstMatch(
-                new CSVFindIdCriteria(FieldColumn.ID.ordinal(), id));
+        Optional<Integer> index = boardFile.findFirstMatch(
+                new CSVFindIdCriteria(BoardLayout.ID.ordinal(), id));
         if(index.isPresent()) {
-            List<String> line = file.getLine(index.get());
-            Board B = new Board(line.get(FieldColumn.TITLE.ordinal()));
-            B.setId(Optional.of(id));
+            Board B = BoardLayout.deserialize(boardFile.getLine(index.get()));
+            /* To populate the 3 lists with tasks, we look into
+            * the tasks file and also TimedTasks file */
+            List<Task> tasksInfo =
+                taskFile.findAllMatches(
+                        line -> taskLineFilter(line, TaskLayout.BOARD_ID.ordinal(),
+                                                String.valueOf(id)))
+                    .stream()
+                    .map(t -> TaskLayout.deserialize(t))
+                    .collect(Collectors.toList());
+            tasksInfo.addAll(
+                    timedTaskFile.findAllMatches(
+                            line -> taskLineFilter(line,
+                                    TimedTaskLayout.BOARD_ID.ordinal(),
+                                    String.valueOf(id)))
+                            .stream()
+                            .map(t -> TimedTaskLayout.deserialize(t))
+                            .collect(Collectors.toList())
+                    );
+            /* Now sort the taks according to their status */
+            for(Task task : tasksInfo) {
+                switch (task.getStatus()) {
+                    case TODO:
+                        B.addTodo(task);
+                        break;
+                    case IN_PROGRESS:
+                        B.addInProgress(task);
+                        break;
+                    case DONE:
+                        B.addDone(task);
+                        break;
+                }
+            }
             return Optional.of(B);
         }
         return Optional.empty();
     }
 
-    public enum FieldColumn {
-        ID, TITLE
+    /* Return true if the line has at least columnNr+1 elements and
+    * the value at columnNr equals the provided value */
+    private boolean taskLineFilter(List<String> line, int columnNr, String value) {
+        return line.size() > columnNr && line.get(columnNr).equals(value);
     }
 
-    private List<String> serialize(Board board) {
-        return new ArrayList<>();
-    }
 }
